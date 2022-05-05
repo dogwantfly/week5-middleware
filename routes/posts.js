@@ -24,7 +24,7 @@ router.post('/', async(req, res, next) =>  {
   try {
     const data = req.body;
     if (!data.content) {
-      // 將以下改為 
+      // 將以下改為 appError 寫法
       res.status(400).json({
         "status": "false",
         "message": "content 欄位為必填"
