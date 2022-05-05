@@ -21,19 +21,24 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/posts', postsRouter);
 
-/* 
-在 app.js 加入  uncaughtException、unhandledRejection 處理
-並在錯誤發生時可正確在 server 紀錄錯誤
+process.on('uncaughtException', err => {
+  // 記錄錯誤下來，等到服務都處理完後，停掉該 process
+	console.error('Uncaughted Exception！')
+	console.error(err);
+	process.exit(1);
+});
 
-同步程式錯誤測試：app.js 中有未定義的變數
-非同步錯誤測試： routes/posts.js 取得資料函式有錯誤，且未使用 catch 接錯
+app.use(function(err, req, res, next) {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message
+  });
+});
 
-註：需在初次啟用 server 時才會出現 uncaughtException 或 unhandledRejection 錯誤
-*/
-
-// 錯誤：未定義變數 test
-// test
-
-
-
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('未捕捉到的 rejection：', promise, '原因：', reason);
+  // 記錄於 log 上
+});
 module.exports = app;
